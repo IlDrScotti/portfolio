@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Maurizio Mazzuferi | Portfolio 2026</title>
+    <meta name="description" content="Maurizio Mazzuferi — senior videomaker. Editing, motion graphics, regia ed eventi live.">
+    <meta property="og:title" content="Maurizio Mazzuferi | Senior Videomaker">
+    <meta property="og:description" content="Editing, motion graphics, regia ed eventi live.">
+    <meta property="og:image" content="https://img.youtube.com/vi/pUZReV7YXJM/maxresdefault.jpg">
+    <meta property="og:type" content="website">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎬</text></svg>">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@900&family=Playfair+Display:ital,wght@1,700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root { --mouse-x: 50%; --mouse-y: 50%; --px: 0; --py: 0; }
+        html { scroll-behavior: smooth; }
+        body { font-family: 'Inter', sans-serif; background-color: #050505; color: white; margin: 0; overflow-x: hidden; }
+
+        /* BACKGROUND DINAMICO */
+        .interactive-bg {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;
+            background: radial-gradient(circle at var(--mouse-x) var(--mouse-y), rgba(45, 253, 190, 0.2) 0%, rgba(0, 150, 255, 0.12) 40%, rgba(5, 5, 5, 1) 85%);
+            pointer-events: none;
+        }
+
+        /* GRANA PELLICOLA */
+        .grain {
+            position: fixed; inset: -50%; width: 200%; height: 200%; z-index: 40;
+            pointer-events: none; opacity: 0.055;
+            background: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='300' height='300'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2'/></filter><rect width='300' height='300' filter='url(%23n)'/></svg>");
+            animation: grain 0.9s steps(6) infinite;
+        }
+        @keyframes grain {
+            0%, 100% { transform: translate(0, 0); }
+            20% { transform: translate(-4%, 3%); }
+            40% { transform: translate(3%, -5%); }
+            60% { transform: translate(-5%, -2%); }
+            80% { transform: translate(4%, 4%); }
+        }
+
+        /* BARRA PROGRESSO PAGINA */
+        #scroll-progress {
+            position: fixed; top: 0; left: 0; width: 100%; height: 2px; z-index: 200;
+            background: linear-gradient(90deg, #67e8f9, #3b82f6);
+            transform: scaleX(0); transform-origin: left;
+        }
+
+        /* NAV: sparisce quando l'overlay video è aperto */
+        nav { transition: opacity 0.3s; }
+        body.overlay-open nav { opacity: 0; pointer-events: none; }
+        .font-tc { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+
+        /* HERO: entrance + parallasse */
+        .line-mask { overflow: hidden; padding-bottom: 0.15em; margin-bottom: -0.15em; }
+        .js .hero-line { animation: rise 1.1s cubic-bezier(0.2, 1, 0.3, 1) both; }
+        @keyframes rise { from { transform: translateY(115%); } }
+        .js .fade-in { animation: fadeUp 0.9s 0.7s cubic-bezier(0.2, 1, 0.3, 1) both; }
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: none; } }
+        .hero-title { transform: translate3d(calc(var(--px) * 18px), calc(var(--py) * 10px), 0); }
+
+        /* MARQUEE */
+        .marquee-track { display: inline-flex; white-space: nowrap; animation: marquee 28s linear infinite; }
+        .marquee-track > span { padding-right: 0.6em; }
+        @keyframes marquee { to { transform: translateX(-50%); } }
+        .txt-outline { color: transparent; -webkit-text-stroke: 1.5px rgba(255,255,255,0.55); }
+
+        /* REVEAL ON SCROLL */
+        .js .reveal { opacity: 0; transform: translateY(40px); }
+        .js .reveal.in-view {
+            opacity: 1; transform: none;
+            transition: opacity 0.9s cubic-bezier(0.2, 1, 0.3, 1), transform 0.9s cubic-bezier(0.2, 1, 0.3, 1);
+            transition-delay: var(--rd, 0s);
+        }
+
+        /* SLIDER 2-BOX STYLE */
+        .horizontal-slider {
+            display: flex; overflow-x: auto; scroll-snap-type: x proximity;
+            gap: 1.5rem; scrollbar-width: none;
+            /* respiro verticale: overflow-x auto clippa anche in verticale, senza padding il tilt/lift taglia le card */
+            padding: 2.5rem 10%; margin: -2.5rem 0;
+        }
+        .horizontal-slider::-webkit-scrollbar { display: none; }
+
+        .project-card {
+            flex: 0 0 44vw; aspect-ratio: 16/9; scroll-snap-align: center;
+            position: relative; border-radius: 2rem; overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.08);
+            transition: all 0.6s cubic-bezier(0.2, 1, 0.3, 1);
+            background: #111;
+        }
+        @media (max-width: 1024px) { .project-card { flex: 0 0 78vw; } }
+
+        /* TILT 3D + RIFLESSO (le variabili restano a 0 senza mouse) */
+        .project-card:hover {
+            transform: perspective(900px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) translateY(-10px);
+            border-color: rgba(45, 253, 190, 0.4); box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+        }
+        .project-card::after {
+            content: ''; position: absolute; inset: 0; pointer-events: none;
+            background: radial-gradient(420px circle at var(--gx, 50%) var(--gy, 50%), rgba(255,255,255,0.13), transparent 60%);
+            opacity: 0; transition: opacity 0.4s;
+        }
+        .project-card:hover::after { opacity: 1; }
+        .project-card:focus-visible { outline: 2px solid rgba(45, 253, 190, 0.6); outline-offset: 4px; }
+
+        .card-img { width: 100%; height: 100%; object-fit: cover; opacity: 0.5; transition: 0.7s; }
+        .project-card:hover .card-img { opacity: 0.8; transform: scale(1.05); }
+
+        /* SHORT 9:16 */
+        .short-card { flex: 0 0 24vw; aspect-ratio: 9/16; }
+        @media (max-width: 1024px) { .short-card { flex: 0 0 55vw; } }
+        @media (min-width: 1025px) { .shorts-slider { justify-content: center; } }
+        .card-video { width: 100%; height: 100%; object-fit: cover; opacity: 0.75; transition: 0.7s; }
+        .project-card:hover .card-video { opacity: 1; transform: scale(1.03); }
+
+        /* PROGRESSO SLIDER */
+        #slider-progress { transform: scaleX(0); transform-origin: left; transition: transform 0.2s linear; }
+
+        /* CURSORE CUSTOM (solo mouse, disattivato con reduced motion) */
+        #cursor-dot, #cursor-ring { display: none; visibility: hidden; }
+        html.cursor-live #cursor-dot, html.cursor-live #cursor-ring { visibility: visible; }
+        html.cursor-on, html.cursor-on * { cursor: none !important; }
+        html.cursor-on #cursor-dot {
+            display: block; position: fixed; top: -3px; left: -3px; width: 6px; height: 6px;
+            border-radius: 50%; background: #2dfdbe; z-index: 2000; pointer-events: none;
+        }
+        html.cursor-on #cursor-ring {
+            display: flex; align-items: center; justify-content: center;
+            position: fixed; top: -20px; left: -20px; width: 40px; height: 40px;
+            border: 1px solid rgba(255,255,255,0.35); border-radius: 50%;
+            z-index: 1999; pointer-events: none;
+            transition: width 0.3s, height 0.3s, top 0.3s, left 0.3s, border-color 0.3s, background 0.3s;
+        }
+        #cursor-ring span {
+            font-size: 9px; letter-spacing: 0.2em; font-weight: 600; opacity: 0;
+            transition: opacity 0.2s;
+        }
+        html.cursor-on #cursor-ring.cursor-play {
+            top: -42px; left: -42px; width: 84px; height: 84px;
+            border-color: rgba(45, 253, 190, 0.8); background: rgba(45, 253, 190, 0.12);
+            backdrop-filter: blur(3px);
+        }
+        #cursor-ring.cursor-play span { opacity: 1; }
+        html.cursor-on #cursor-ring.cursor-link {
+            top: -28px; left: -28px; width: 56px; height: 56px;
+            border-color: rgba(255,255,255,0.7);
+        }
+
+        /* OVERLAY PREMIUM */
+        #video-detail {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(5, 5, 5, 0.96); z-index: 1000; transform: scale(1.1); opacity: 0;
+            visibility: hidden; transition: all 0.5s cubic-bezier(0.2, 1, 0.3, 1);
+            backdrop-filter: blur(25px);
+            display: flex; flex-direction: column; overflow-y: auto;
+        }
+        #video-detail.active { transform: scale(1); opacity: 1; visibility: visible; }
+
+        .video-container {
+            width: 100%; max-width: 1100px; aspect-ratio: 16/9;
+            background: #000; border-radius: 2rem; overflow: hidden;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.8); border: 1px solid rgba(255,255,255,0.1);
+        }
+        .video-container.vertical { aspect-ratio: 9/16; max-width: min(44vh, 92vw); }
+
+        .font-maurizio { font-family: 'Archivo', sans-serif; }
+        .font-mazzuferi { font-family: 'Playfair Display', serif; font-style: italic; font-weight: 700; }
+
+        /* MENO ANIMAZIONI SE RICHIESTO DAL SISTEMA */
+        @media (prefers-reduced-motion: reduce) {
+            html { scroll-behavior: auto; }
+            .grain, .marquee-track, .hero-line, .fade-in, .animate-bounce { animation: none !important; }
+            .js .reveal { opacity: 1 !important; transform: none !important; transition: none !important; }
+            .hero-title { transform: none; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="interactive-bg" id="bg"></div>
+    <div class="grain" aria-hidden="true"></div>
+    <div id="scroll-progress" aria-hidden="true"></div>
+
+    <nav class="fixed top-0 w-full z-[100] flex justify-between items-center px-10 py-8 mix-blend-difference">
+        <div class="text-xl font-black tracking-widest">PORTFOLIO</div>
+        <div class="hidden md:flex flex-col items-end gap-1">
+            <div class="text-[10px] uppercase tracking-[0.4em] opacity-60">Maurizio Mazzuferi ©2026</div>
+            <div id="tc" class="font-tc text-[10px] tracking-[0.2em] opacity-40">TC 00:00:00:00</div>
+            <button id="sound-toggle" aria-pressed="false" class="font-tc text-[10px] tracking-[0.2em] opacity-40 hover:opacity-100 transition">SFX OFF</button>
+        </div>
+    </nav>
+
+    <section class="h-screen flex items-center px-10 md:px-20">
+        <div class="z-20">
+            <h1 class="hero-title text-[11vw] leading-[0.85] uppercase">
+                <span class="line-mask block"><span class="hero-line block font-maurizio">MAURIZIO</span></span>
+                <span class="line-mask block ml-[3vw]"><span class="hero-line block font-mazzuferi text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 to-blue-500" style="animation-delay: 0.15s;">Mazzuferi</span></span>
+            </h1>
+            <p class="fade-in mt-6 text-lg uppercase tracking-[0.4em] opacity-70 ml-[3.5vw]">Senior Videomaker & Content Creator</p>
+        </div>
+        <div class="fade-in absolute bottom-10 left-1/2 -translate-x-1/2 cursor-pointer opacity-30 hover:opacity-100 transition" onclick="document.getElementById('works').scrollIntoView({behavior: 'smooth'})">
+            <div class="animate-bounce">
+                <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M7 13l5 5 5-5M7 6l5 5 5-5"/></svg>
+            </div>
+        </div>
+    </section>
+
+    <div class="border-y border-white/10 py-5 overflow-hidden" aria-hidden="true">
+        <div class="marquee-track font-maurizio uppercase text-5xl md:text-7xl">
+            <span>Editing <span class="text-cyan-300">✦</span> <span class="txt-outline">Motion Graphics</span> <span class="text-cyan-300">✦</span> Regia <span class="text-cyan-300">✦</span> <span class="txt-outline">Color Grading</span> <span class="text-cyan-300">✦</span> Storytelling <span class="text-cyan-300">✦</span> <span class="txt-outline">Live Events</span> <span class="text-cyan-300">✦</span> </span>
+            <span>Editing <span class="text-cyan-300">✦</span> <span class="txt-outline">Motion Graphics</span> <span class="text-cyan-300">✦</span> Regia <span class="text-cyan-300">✦</span> <span class="txt-outline">Color Grading</span> <span class="text-cyan-300">✦</span> Storytelling <span class="text-cyan-300">✦</span> <span class="txt-outline">Live Events</span> <span class="text-cyan-300">✦</span> </span>
+        </div>
+    </div>
+
+    <section id="works" class="py-20 min-h-screen flex flex-col justify-center">
+        <div class="reveal flex justify-between items-center px-[10%] mb-8">
+            <p class="text-[10px] uppercase tracking-[0.4em] opacity-50">Lavori selezionati</p>
+            <div class="flex gap-3">
+                <button id="slide-prev" aria-label="Progetto precedente" class="w-11 h-11 rounded-full border border-white/15 hover:bg-white hover:text-black transition">←</button>
+                <button id="slide-next" aria-label="Progetto successivo" class="w-11 h-11 rounded-full border border-white/15 hover:bg-white hover:text-black transition">→</button>
+            </div>
+        </div>
+        <div class="reveal" style="--rd: 0.1s;">
+            <div class="horizontal-slider">
+                <div class="project-card group cursor-pointer" role="button" tabindex="0" aria-label="Guarda: La miglior piattaforma streaming" onclick="openYT('pUZReV7YXJM', 'La miglior piattaforma streaming', 'Editor & Creative Lead')">
+                    <img src="https://img.youtube.com/vi/pUZReV7YXJM/maxresdefault.jpg" alt="Anteprima del video sulle piattaforme streaming" class="card-img" onerror="this.onerror=null;this.src=this.src.replace('maxresdefault','hqdefault')">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent"></div>
+                    <div class="absolute bottom-4 left-5 md:bottom-10 md:left-10">
+                        <p class="text-[10px] uppercase tracking-widest opacity-50 mb-2">Streaming War</p>
+                        <h2 class="font-maurizio text-xl md:text-3xl uppercase leading-none">Piattaforme<br>Streaming</h2>
+                    </div>
+                </div>
+
+                <div class="project-card group cursor-pointer" role="button" tabindex="0" aria-label="Guarda: SHOW4HEALTH Trailer" onclick="openYT('zPLSSsIgv8I', 'SHOW4HEALTH Trailer', 'Motion Graphics Designer')">
+                    <img src="https://img.youtube.com/vi/zPLSSsIgv8I/maxresdefault.jpg" alt="Anteprima del trailer SHOW4HEALTH" class="card-img" onerror="this.onerror=null;this.src=this.src.replace('maxresdefault','hqdefault')">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent"></div>
+                    <div class="absolute bottom-4 left-5 md:bottom-10 md:left-10">
+                        <p class="text-[10px] uppercase tracking-widest opacity-50 mb-2">Motion Graphics</p>
+                        <h2 class="font-maurizio text-xl md:text-3xl uppercase leading-none">SHOW 4<br>HEALTH</h2>
+                    </div>
+                </div>
+
+                <div class="project-card group cursor-pointer" role="button" tabindex="0" aria-label="Guarda: Hi-Fi Basics episodio 1" onclick="openYT('A0UDOirbuhE', 'Hi-Fi Basics ep.1', 'Director & Cinematographer')">
+                    <img src="https://img.youtube.com/vi/A0UDOirbuhE/maxresdefault.jpg" alt="Anteprima del primo episodio di Hi-Fi Basics" class="card-img" onerror="this.onerror=null;this.src=this.src.replace('maxresdefault','hqdefault')">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent"></div>
+                    <div class="absolute bottom-4 left-5 md:bottom-10 md:left-10">
+                        <p class="text-[10px] uppercase tracking-widest opacity-50 mb-2">Serie YouTube</p>
+                        <h2 class="font-maurizio text-xl md:text-3xl uppercase leading-none">Hi-Fi<br>Basics</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="mx-[10%] mt-8 h-px bg-white/10">
+                <div id="slider-progress" class="h-px bg-gradient-to-r from-cyan-300 to-blue-500"></div>
+            </div>
+        </div>
+    </section>
+
+    <section id="shorts" class="py-20">
+        <div class="reveal flex justify-between items-center px-[10%] mb-8">
+            <p class="text-[10px] uppercase tracking-[0.4em] opacity-50">Short & Reel — 9:16</p>
+        </div>
+        <div class="reveal horizontal-slider shorts-slider" style="--rd: 0.1s;">
+            <div class="project-card short-card group cursor-pointer" role="button" tabindex="0" aria-label="Guarda: OmniLAN social cut" onclick="openLocal('video/omnilan-social-web.mp4', 'OmniLAN', 'Short-form 9:16')">
+                <video class="card-video" src="video/omnilan-social-web.mp4" muted loop playsinline preload="metadata" aria-hidden="true"></video>
+                <div class="absolute inset-0 bg-gradient-to-t from-black via-black/10 to-transparent"></div>
+                <div class="absolute bottom-4 left-5">
+                    <p class="text-[10px] uppercase tracking-widest opacity-50 mb-2">Short</p>
+                    <h2 class="font-maurizio text-xl uppercase leading-none">OmniLAN</h2>
+                </div>
+            </div>
+
+            <div class="project-card short-card group cursor-pointer" role="button" tabindex="0" aria-label="Guarda: MR1 MK3 reel" onclick="openLocal('video/reel-mr1mk3-web.mp4', 'MR1 MK3', 'Short-form 9:16')">
+                <video class="card-video" src="video/reel-mr1mk3-web.mp4" muted loop playsinline preload="metadata" aria-hidden="true"></video>
+                <div class="absolute inset-0 bg-gradient-to-t from-black via-black/10 to-transparent"></div>
+                <div class="absolute bottom-4 left-5">
+                    <p class="text-[10px] uppercase tracking-widest opacity-50 mb-2">Reel</p>
+                    <h2 class="font-maurizio text-xl uppercase leading-none">MR1 MK3</h2>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="contact" class="py-32 px-10 md:px-20">
+        <p class="reveal text-[10px] uppercase tracking-[0.4em] opacity-50 mb-8">Bio</p>
+        <div class="grid md:grid-cols-3 gap-12 md:gap-20">
+            <div class="md:col-span-2">
+                <p class="reveal max-w-3xl text-2xl md:text-4xl font-light leading-snug opacity-90" style="--rd: 0.1s;">
+                    Editing, motion graphics e regia.<br>
+                    Faccio video che la gente guarda fino alla fine.
+                </p>
+                <p class="reveal max-w-2xl mt-8 text-base md:text-lg font-light leading-relaxed opacity-60" style="--rd: 0.15s;">
+                    Senior videomaker, base a Padova: sette anni tra pre e post-produzione,
+                    motion graphics ed eventi live. Script, riprese, montaggio, motion e color —
+                    seguo il video per intero, con un'ossessione per il ritmo e per la retention.
+                </p>
+                <a href="mailto:mauriziomazzuferi@yahoo.it" class="reveal inline-block mt-14 border border-white/20 rounded-full px-10 py-5 text-xs uppercase tracking-[0.3em] hover:bg-white hover:text-black transition" style="--rd: 0.2s;">
+                    Cerchi un videomaker? Scrivimi →
+                </a>
+            </div>
+            <div class="reveal" style="--rd: 0.25s;">
+                <p class="text-[10px] uppercase tracking-[0.4em] opacity-50 mb-6">Contatti</p>
+                <ul class="space-y-4 text-sm">
+                    <li>
+                        <p class="text-[10px] uppercase tracking-widest opacity-40 mb-1">Email</p>
+                        <a href="mailto:mauriziomazzuferi@yahoo.it" class="border-b border-white/20 pb-0.5 hover:border-cyan-300 hover:text-cyan-300 transition">mauriziomazzuferi@yahoo.it</a>
+                    </li>
+                    <li>
+                        <p class="text-[10px] uppercase tracking-widest opacity-40 mb-1">LinkedIn</p>
+                        <a href="https://www.linkedin.com/in/maurizio-mazzuferi" target="_blank" rel="noopener" class="border-b border-white/20 pb-0.5 hover:border-cyan-300 hover:text-cyan-300 transition">/in/maurizio-mazzuferi</a>
+                    </li>
+                    <li>
+                        <p class="text-[10px] uppercase tracking-widest opacity-40 mb-1">Base</p>
+                        <span class="opacity-80">Padova, Italia</span>
+                    </li>
+                    <!-- Instagram: scommenta e metti il tuo handle
+                    <li>
+                        <p class="text-[10px] uppercase tracking-widest opacity-40 mb-1">Instagram</p>
+                        <a href="https://www.instagram.com/TUO-HANDLE" target="_blank" rel="noopener" class="border-b border-white/20 pb-0.5 hover:border-cyan-300 hover:text-cyan-300 transition">@TUO-HANDLE</a>
+                    </li>
+                    -->
+                </ul>
+                <p class="text-[10px] uppercase tracking-[0.4em] opacity-50 mt-10 mb-4">Toolkit</p>
+                <p class="text-sm leading-relaxed opacity-70">Premiere · After Effects · DaVinci Resolve · Photoshop · Illustrator · InDesign</p>
+                <p class="text-[10px] uppercase tracking-[0.4em] opacity-50 mt-8 mb-4">Lingue</p>
+                <p class="text-sm opacity-70">Italiano — nativo · Inglese — C1</p>
+            </div>
+        </div>
+    </section>
+
+    <footer class="px-10 md:px-20 py-10 flex flex-col md:flex-row justify-between gap-4 border-t border-white/10 text-[10px] uppercase tracking-[0.3em]">
+        <span class="opacity-50">Maurizio Mazzuferi ©2026</span>
+        <div class="flex gap-8">
+            <a href="mailto:mauriziomazzuferi@yahoo.it" class="opacity-50 hover:opacity-100 transition">Email</a>
+        </div>
+    </footer>
+
+    <div id="video-detail">
+        <div class="flex justify-between p-8 items-center shrink-0">
+            <button onclick="closeYT()" class="text-xs uppercase tracking-widest border border-white/10 px-6 py-2 rounded-full hover:bg-white hover:text-black transition">← Indietro</button>
+            <h2 id="detail-title" class="font-maurizio text-xl uppercase tracking-tighter text-cyan-400"></h2>
+        </div>
+        <div class="my-auto flex flex-col items-center p-6 w-full">
+            <div class="video-container">
+                <div id="yt-placeholder" class="w-full h-full"></div>
+            </div>
+            <div class="max-w-[1100px] w-full mt-10">
+                <div class="inline-block border-l-2 border-cyan-400 pl-6">
+                    <p id="detail-desc" class="text-3xl font-light opacity-90 italic font-mazzuferi"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="cursor-ring" aria-hidden="true"><span>PLAY ▶</span></div>
+    <div id="cursor-dot" aria-hidden="true"></div>
+
+    <script>
+        document.documentElement.classList.add('js');
+        const fancyPointer = matchMedia('(hover: hover) and (pointer: fine)').matches
+            && !matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+        // SOUND DESIGN: micro-suoni sintetizzati (WebAudio, nessun file), spenti di default
+        let soundOn = false;
+        try { soundOn = localStorage.getItem('mm-sfx') === 'on'; } catch (e) {}
+        let audioCtx = null;
+        function ac() {
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            return audioCtx;
+        }
+        function blip(freq = 1800, dur = 0.04, vol = 0.035) {
+            if (!soundOn) return;
+            const ctx = ac(), t = ctx.currentTime;
+            const o = ctx.createOscillator(), g = ctx.createGain();
+            o.type = 'sine'; o.frequency.value = freq;
+            g.gain.setValueAtTime(vol, t);
+            g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+            o.connect(g).connect(ctx.destination);
+            o.start(t); o.stop(t + dur);
+        }
+        function whoosh(up = true) {
+            if (!soundOn) return;
+            const ctx = ac(), t = ctx.currentTime, dur = 0.35;
+            const buf = ctx.createBuffer(1, Math.floor(ctx.sampleRate * dur), ctx.sampleRate);
+            const d = buf.getChannelData(0);
+            for (let i = 0; i < d.length; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / d.length);
+            const src = ctx.createBufferSource(); src.buffer = buf;
+            const f = ctx.createBiquadFilter(); f.type = 'bandpass'; f.Q.value = 1.2;
+            f.frequency.setValueAtTime(up ? 300 : 1500, t);
+            f.frequency.exponentialRampToValueAtTime(up ? 1500 : 300, t + dur);
+            const g = ctx.createGain();
+            g.gain.setValueAtTime(0.07, t);
+            g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+            src.connect(f).connect(g).connect(ctx.destination);
+            src.start(t);
+        }
+        const soundBtn = document.getElementById('sound-toggle');
+        function renderSoundBtn() {
+            soundBtn.textContent = soundOn ? 'SFX ON' : 'SFX OFF';
+            soundBtn.setAttribute('aria-pressed', String(soundOn));
+            soundBtn.classList.toggle('opacity-40', !soundOn);
+            soundBtn.classList.toggle('text-cyan-300', soundOn);
+        }
+        renderSoundBtn();
+        soundBtn.addEventListener('click', () => {
+            soundOn = !soundOn;
+            try { localStorage.setItem('mm-sfx', soundOn ? 'on' : 'off'); } catch (e) {}
+            renderSoundBtn();
+            blip(1600, 0.07, 0.05);
+        });
+
+        window.addEventListener('mousemove', (e) => {
+            const nx = e.clientX / window.innerWidth;
+            const ny = e.clientY / window.innerHeight;
+            document.documentElement.style.setProperty('--mouse-x', `${nx * 100}%`);
+            document.documentElement.style.setProperty('--mouse-y', `${ny * 100}%`);
+            document.documentElement.style.setProperty('--px', (nx - 0.5).toFixed(3));
+            document.documentElement.style.setProperty('--py', (ny - 0.5).toFixed(3));
+        });
+
+        function openYT(id, title, role) {
+            document.getElementById('detail-title').innerText = title;
+            document.getElementById('detail-desc').innerText = role;
+
+            // FIX ERRORE 150/153: Aggiunto enablejsapi e origin
+            const currentOrigin = window.location.origin;
+            document.getElementById('yt-placeholder').innerHTML = `
+                <iframe
+                    src="https://www.youtube.com/embed/${id}?autoplay=1&rel=0&modestbranding=1&enablejsapi=1&origin=${currentOrigin}"
+                    frameborder="0"
+                    allow="autoplay; encrypted-media; picture-in-picture"
+                    allowfullscreen
+                    style="width:100%; height:100%;">
+                </iframe>`;
+
+            document.getElementById('video-detail').classList.add('active');
+            document.body.classList.add('overlay-open');
+            document.body.style.overflow = 'hidden';
+            whoosh(true);
+        }
+
+        function closeYT() {
+            const detail = document.getElementById('video-detail');
+            if (!detail.classList.contains('active')) return;
+            detail.classList.remove('active');
+            document.getElementById('yt-placeholder').innerHTML = '';
+            document.querySelector('.video-container').classList.remove('vertical');
+            document.body.classList.remove('overlay-open');
+            document.body.style.overflow = 'auto';
+            whoosh(false);
+        }
+
+        // Short locali: overlay con <video> nativo in 9:16
+        function openLocal(src, title, role) {
+            document.getElementById('detail-title').innerText = title;
+            document.getElementById('detail-desc').innerText = role;
+            document.querySelector('.video-container').classList.add('vertical');
+            document.getElementById('yt-placeholder').innerHTML = `
+                <video src="${src}" controls autoplay playsinline style="width:100%; height:100%; background:#000;"></video>`;
+            document.getElementById('video-detail').classList.add('active');
+            document.body.classList.add('overlay-open');
+            document.body.style.overflow = 'hidden';
+            whoosh(true);
+        }
+
+        // Overlay: chiusura con Esc e click fuori dal video
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeYT();
+        });
+        document.getElementById('video-detail').addEventListener('click', (e) => {
+            if (e.target.closest('.video-container') || e.target.closest('button')) return;
+            closeYT();
+        });
+
+        // Slider: frecce + rotella verticale
+        const slider = document.querySelector('.horizontal-slider');
+        const cards = [...slider.querySelectorAll('.project-card')];
+        const allCards = [...document.querySelectorAll('.project-card')];
+        // posizione di scroll che centra la card (stesso punto di riposo dello snap)
+        const centerLeft = (card) => card.offsetLeft - (slider.clientWidth - card.offsetWidth) / 2;
+
+        // animazione manuale: lo smooth scroll nativo viene annullato dallo scroll-snap in alcuni browser
+        let glideId = null;
+        function glideTo(left) {
+            cancelAnimationFrame(glideId);
+            const max = slider.scrollWidth - slider.clientWidth;
+            const target = Math.max(0, Math.min(max, left));
+            const start = slider.scrollLeft;
+            const t0 = performance.now();
+            const ease = (t) => 1 - Math.pow(1 - t, 3);
+            const frame = (now) => {
+                const t = Math.min(1, (now - t0) / 450);
+                slider.scrollLeft = start + (target - start) * ease(t);
+                if (t < 1) glideId = requestAnimationFrame(frame);
+            };
+            glideId = requestAnimationFrame(frame);
+        }
+        function currentIndex() {
+            const x = slider.scrollLeft;
+            let best = 0;
+            cards.forEach((c, i) => {
+                if (Math.abs(centerLeft(c) - x) < Math.abs(centerLeft(cards[best]) - x)) best = i;
+            });
+            return best;
+        }
+        document.getElementById('slide-prev').addEventListener('click', () => { blip(700, 0.05, 0.04); glideTo(centerLeft(cards[Math.max(0, currentIndex() - 1)])); });
+        document.getElementById('slide-next').addEventListener('click', () => { blip(900, 0.05, 0.04); glideTo(centerLeft(cards[Math.min(cards.length - 1, currentIndex() + 1)])); });
+        document.querySelectorAll('.horizontal-slider').forEach((sl) => {
+            sl.addEventListener('wheel', (e) => {
+                if (sl.scrollWidth <= sl.clientWidth) return;
+                if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
+                    e.preventDefault();
+                    sl.scrollLeft += e.deltaY;
+                }
+            }, { passive: false });
+        });
+
+        // Progresso slider
+        const sliderProgress = document.getElementById('slider-progress');
+        function updateSliderProgress() {
+            const max = slider.scrollWidth - slider.clientWidth;
+            sliderProgress.style.transform = `scaleX(${max > 0 ? slider.scrollLeft / max : 0})`;
+        }
+        slider.addEventListener('scroll', updateSliderProgress, { passive: true });
+        updateSliderProgress();
+
+        // Progresso pagina
+        const scrollProgress = document.getElementById('scroll-progress');
+        window.addEventListener('scroll', () => {
+            const max = document.body.scrollHeight - window.innerHeight;
+            scrollProgress.style.transform = `scaleX(${max > 0 ? window.scrollY / max : 0})`;
+        }, { passive: true });
+
+        // Card apribili anche da tastiera
+        allCards.forEach((card) => {
+            card.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    card.click();
+                }
+            });
+        });
+
+        // Short: autoplay muto solo quando visibili
+        const vidObserver = new IntersectionObserver((entries) => {
+            entries.forEach((entry) => {
+                const v = entry.target;
+                if (entry.isIntersecting) { v.play().catch(() => {}); } else { v.pause(); }
+            });
+        }, { threshold: 0.35 });
+        document.querySelectorAll('.card-video').forEach((v) => vidObserver.observe(v));
+
+        // Reveal on scroll
+        const io = new IntersectionObserver((entries) => {
+            entries.forEach((entry) => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('in-view');
+                    io.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.15, rootMargin: '0px 0px -8% 0px' });
+        document.querySelectorAll('.reveal').forEach((el) => io.observe(el));
+
+        // Timecode in nav (25fps)
+        const tc = document.getElementById('tc');
+        setInterval(() => {
+            const t = performance.now() / 1000;
+            const pad = (n) => String(n).padStart(2, '0');
+            tc.textContent = `TC ${pad(Math.floor(t / 3600))}:${pad(Math.floor(t / 60) % 60)}:${pad(Math.floor(t) % 60)}:${pad(Math.floor((t % 1) * 25))}`;
+        }, 40);
+
+        // Cursore custom + tilt 3D: solo con mouse vero e senza reduced motion
+        if (fancyPointer) {
+            document.documentElement.classList.add('cursor-on');
+            const dot = document.getElementById('cursor-dot');
+            const ring = document.getElementById('cursor-ring');
+            let mx = innerWidth / 2, my = innerHeight / 2, ringX = mx, ringY = my;
+            window.addEventListener('mousemove', (e) => {
+                mx = e.clientX; my = e.clientY;
+                if (!document.documentElement.classList.contains('cursor-live')) {
+                    ringX = mx; ringY = my;
+                    document.documentElement.classList.add('cursor-live');
+                }
+                dot.style.transform = `translate(${mx}px, ${my}px)`;
+            });
+            (function followLoop() {
+                ringX += (mx - ringX) * 0.16;
+                ringY += (my - ringY) * 0.16;
+                ring.style.transform = `translate(${ringX}px, ${ringY}px)`;
+                requestAnimationFrame(followLoop);
+            })();
+
+            allCards.forEach((card) => {
+                card.addEventListener('mouseenter', () => { ring.classList.add('cursor-play'); blip(1400, 0.05, 0.03); });
+                card.addEventListener('mouseleave', () => ring.classList.remove('cursor-play'));
+                card.addEventListener('mousemove', (e) => {
+                    const r = card.getBoundingClientRect();
+                    const px = (e.clientX - r.left) / r.width;
+                    const py = (e.clientY - r.top) / r.height;
+                    card.style.setProperty('--ry', `${((px - 0.5) * 8).toFixed(2)}deg`);
+                    card.style.setProperty('--rx', `${((0.5 - py) * 8).toFixed(2)}deg`);
+                    card.style.setProperty('--gx', `${(px * 100).toFixed(1)}%`);
+                    card.style.setProperty('--gy', `${(py * 100).toFixed(1)}%`);
+                });
+                card.addEventListener('mouseleave', () => {
+                    card.style.setProperty('--rx', '0deg');
+                    card.style.setProperty('--ry', '0deg');
+                });
+            });
+
+            document.querySelectorAll('a, button').forEach((el) => {
+                el.addEventListener('mouseenter', () => { ring.classList.add('cursor-link'); blip(2100, 0.03, 0.02); });
+                el.addEventListener('mouseleave', () => ring.classList.remove('cursor-link'));
+            });
+        }
+    </script>
+</body>
+</html>
