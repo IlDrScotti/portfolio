@@ -73,6 +73,12 @@
             transition-delay: var(--rd, 0s);
         }
 
+        /* WORKS: sezione pin — lo scroll verticale della pagina trasla le card in orizzontale.
+           L'altezza extra della sezione la imposta il JS; il blocco sticky resta inquadrato. */
+        .works-sticky { position: sticky; top: 0; }
+        .works-viewport { overflow: hidden; padding: 2.5rem 0; margin: -2.5rem 0; }
+        .works-track { display: flex; gap: 1.5rem; width: max-content; padding: 0 10vw; will-change: transform; }
+
         /* SLIDER 2-BOX STYLE */
         .horizontal-slider {
             display: flex; overflow-x: auto; scroll-snap-type: x proximity;
@@ -184,10 +190,15 @@
 
     <nav class="fixed top-0 w-full z-[100] flex justify-between items-center px-10 py-8 mix-blend-difference">
         <div class="text-xl font-black tracking-widest">PORTFOLIO</div>
-        <div class="hidden md:flex flex-col items-end gap-1">
-            <div class="text-[10px] uppercase tracking-[0.4em] opacity-60">Maurizio Mazzuferi ©2026</div>
-            <div id="tc" class="font-tc text-[10px] tracking-[0.2em] opacity-40">TC 00:00:00:00</div>
-            <button id="sound-toggle" aria-pressed="false" class="font-tc text-[10px] tracking-[0.2em] opacity-40 hover:opacity-100 transition">SFX OFF</button>
+        <div class="flex items-center gap-5">
+            <div class="hidden md:flex flex-col items-end gap-1">
+                <div class="text-[10px] uppercase tracking-[0.4em] opacity-60">Maurizio Mazzuferi ©2026</div>
+                <div id="tc" class="font-tc text-[10px] tracking-[0.2em] opacity-40">TC 00:00:00:00</div>
+            </div>
+            <button id="sound-toggle" aria-pressed="true" aria-label="Attiva o disattiva i suoni dell'interfaccia" class="flex items-center gap-2 border border-white/25 rounded-full px-4 py-2 font-tc text-[10px] tracking-[0.2em] hover:border-white transition">
+                <span id="sfx-dot" class="w-1.5 h-1.5 rounded-full bg-cyan-300 animate-pulse"></span>
+                <span id="sfx-label">SFX ON</span>
+            </button>
         </div>
     </nav>
 
@@ -213,7 +224,8 @@
         </div>
     </div>
 
-    <section id="works" class="py-20 min-h-screen flex flex-col justify-center">
+    <section id="works">
+        <div class="works-sticky h-screen flex flex-col justify-center">
         <div class="reveal flex justify-between items-center px-[10%] mb-8">
             <p class="text-[10px] uppercase tracking-[0.4em] opacity-50">Lavori selezionati</p>
             <div class="flex gap-3">
@@ -222,7 +234,8 @@
             </div>
         </div>
         <div class="reveal" style="--rd: 0.1s;">
-            <div class="horizontal-slider">
+            <div class="works-viewport">
+            <div class="works-track">
                 <div class="project-card group cursor-pointer" role="button" tabindex="0" aria-label="Guarda: La miglior piattaforma streaming" onclick="openYT('pUZReV7YXJM', 'La miglior piattaforma streaming', 'Editor & Creative Lead')">
                     <img src="https://img.youtube.com/vi/pUZReV7YXJM/maxresdefault.jpg" alt="Anteprima del video sulle piattaforme streaming" class="card-img" onerror="this.onerror=null;this.src=this.src.replace('maxresdefault','hqdefault')">
                     <div class="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent"></div>
@@ -250,9 +263,11 @@
                     </div>
                 </div>
             </div>
+            </div>
             <div class="mx-[10%] mt-8 h-px bg-white/10">
                 <div id="slider-progress" class="h-px bg-gradient-to-r from-cyan-300 to-blue-500"></div>
             </div>
+        </div>
         </div>
     </section>
 
@@ -290,9 +305,11 @@
                     Faccio video che la gente guarda fino alla fine.
                 </p>
                 <p class="reveal max-w-2xl mt-8 text-base md:text-lg font-light leading-relaxed opacity-60" style="--rd: 0.15s;">
-                    Senior videomaker, base a Padova: sette anni tra pre e post-produzione,
-                    motion graphics ed eventi live. Script, riprese, montaggio, motion e color —
-                    seguo il video per intero, con un'ossessione per il ritmo e per la retention.
+                    Sono Maurizio, videomaker da sette anni, base a Padova. Ho iniziato tra
+                    grafica e riprese, sono passato per la regia di eventi live e oggi faccio
+                    soprattutto contenuti: scrivo, giro, monto, curo colore e motion.
+                    La parte che mi diverte di più resta il montaggio — trovare il ritmo
+                    che tiene le persone incollate fino all'ultimo secondo.
                 </p>
                 <a href="mailto:mauriziomazzuferi@yahoo.it" class="reveal inline-block mt-14 border border-white/20 rounded-full px-10 py-5 text-xs uppercase tracking-[0.3em] hover:bg-white hover:text-black transition" style="--rd: 0.2s;">
                     Cerchi un videomaker? Scrivimi →
@@ -323,7 +340,7 @@
                 <p class="text-[10px] uppercase tracking-[0.4em] opacity-50 mt-10 mb-4">Toolkit</p>
                 <p class="text-sm leading-relaxed opacity-70">Premiere · After Effects · DaVinci Resolve · Photoshop · Illustrator · InDesign</p>
                 <p class="text-[10px] uppercase tracking-[0.4em] opacity-50 mt-8 mb-4">Lingue</p>
-                <p class="text-sm opacity-70">Italiano — nativo · Inglese — C1</p>
+                <p class="text-sm opacity-70">Italiano — madrelingua · Inglese — C1</p>
             </div>
         </div>
     </section>
@@ -360,9 +377,10 @@
         const fancyPointer = matchMedia('(hover: hover) and (pointer: fine)').matches
             && !matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-        // SOUND DESIGN: micro-suoni sintetizzati (WebAudio, nessun file), spenti di default
-        let soundOn = false;
-        try { soundOn = localStorage.getItem('mm-sfx') === 'on'; } catch (e) {}
+        // SOUND DESIGN: micro-suoni sintetizzati (WebAudio, nessun file), accesi di default
+        // (il browser li sblocca comunque solo dopo la prima interazione dell'utente)
+        let soundOn = true;
+        try { soundOn = localStorage.getItem('mm-sfx') !== 'off'; } catch (e) {}
         let audioCtx = null;
         function ac() {
             if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -397,10 +415,14 @@
         }
         const soundBtn = document.getElementById('sound-toggle');
         function renderSoundBtn() {
-            soundBtn.textContent = soundOn ? 'SFX ON' : 'SFX OFF';
+            document.getElementById('sfx-label').textContent = soundOn ? 'SFX ON' : 'SFX OFF';
             soundBtn.setAttribute('aria-pressed', String(soundOn));
-            soundBtn.classList.toggle('opacity-40', !soundOn);
             soundBtn.classList.toggle('text-cyan-300', soundOn);
+            soundBtn.classList.toggle('opacity-60', !soundOn);
+            const dot = document.getElementById('sfx-dot');
+            dot.classList.toggle('bg-cyan-300', soundOn);
+            dot.classList.toggle('animate-pulse', soundOn);
+            dot.classList.toggle('bg-white/30', !soundOn);
         }
         renderSoundBtn();
         soundBtn.addEventListener('click', () => {
@@ -473,57 +495,63 @@
             closeYT();
         });
 
-        // Slider: frecce + rotella verticale
-        const slider = document.querySelector('.horizontal-slider');
-        const cards = [...slider.querySelectorAll('.project-card')];
+        // Sezione lavori "pinnata": lo scroll verticale della pagina trasla le card.
+        // Niente intercettazione della rotella: il browser resta padrone dello scroll.
         const allCards = [...document.querySelectorAll('.project-card')];
-        // posizione di scroll che centra la card (stesso punto di riposo dello snap)
-        const centerLeft = (card) => card.offsetLeft - (slider.clientWidth - card.offsetWidth) / 2;
-
-        // animazione manuale: lo smooth scroll nativo viene annullato dallo scroll-snap in alcuni browser
-        let glideId = null;
-        function glideTo(left) {
-            cancelAnimationFrame(glideId);
-            const max = slider.scrollWidth - slider.clientWidth;
-            const target = Math.max(0, Math.min(max, left));
-            const start = slider.scrollLeft;
-            const t0 = performance.now();
-            const ease = (t) => 1 - Math.pow(1 - t, 3);
-            const frame = (now) => {
-                const t = Math.min(1, (now - t0) / 450);
-                slider.scrollLeft = start + (target - start) * ease(t);
-                if (t < 1) glideId = requestAnimationFrame(frame);
-            };
-            glideId = requestAnimationFrame(frame);
-        }
-        function currentIndex() {
-            const x = slider.scrollLeft;
-            let best = 0;
-            cards.forEach((c, i) => {
-                if (Math.abs(centerLeft(c) - x) < Math.abs(centerLeft(cards[best]) - x)) best = i;
-            });
-            return best;
-        }
-        document.getElementById('slide-prev').addEventListener('click', () => { blip(700, 0.05, 0.04); glideTo(centerLeft(cards[Math.max(0, currentIndex() - 1)])); });
-        document.getElementById('slide-next').addEventListener('click', () => { blip(900, 0.05, 0.04); glideTo(centerLeft(cards[Math.min(cards.length - 1, currentIndex() + 1)])); });
-        document.querySelectorAll('.horizontal-slider').forEach((sl) => {
-            sl.addEventListener('wheel', (e) => {
-                if (sl.scrollWidth <= sl.clientWidth) return;
-                if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
-                    e.preventDefault();
-                    sl.scrollLeft += e.deltaY;
-                }
-            }, { passive: false });
-        });
-
-        // Progresso slider
+        const worksSection = document.getElementById('works');
+        const worksViewport = document.querySelector('.works-viewport');
+        const worksTrack = document.querySelector('.works-track');
+        const worksCards = [...worksTrack.querySelectorAll('.project-card')];
         const sliderProgress = document.getElementById('slider-progress');
-        function updateSliderProgress() {
-            const max = slider.scrollWidth - slider.clientWidth;
-            sliderProgress.style.transform = `scaleX(${max > 0 ? slider.scrollLeft / max : 0})`;
+        const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+        const cardStep = () => worksCards[0].getBoundingClientRect().width + 24;
+
+        let worksShift = 0;
+        function layoutWorks() {
+            worksShift = Math.max(0, worksTrack.offsetWidth - worksViewport.clientWidth);
+            worksSection.style.height = `${window.innerHeight + worksShift}px`;
+            updateWorks();
         }
-        slider.addEventListener('scroll', updateSliderProgress, { passive: true });
-        updateSliderProgress();
+        function updateWorks() {
+            const p = worksShift > 0
+                ? Math.min(1, Math.max(0, -worksSection.getBoundingClientRect().top / worksShift))
+                : 0;
+            worksTrack.style.transform = `translate3d(${(-p * worksShift).toFixed(1)}px, 0, 0)`;
+            sliderProgress.style.transform = `scaleX(${p.toFixed(4)})`;
+        }
+
+        if (reducedMotion) {
+            // fallback: carosello classico, nessun pin
+            worksViewport.style.overflowX = 'auto';
+            worksViewport.addEventListener('scroll', () => {
+                const max = worksViewport.scrollWidth - worksViewport.clientWidth;
+                sliderProgress.style.transform = `scaleX(${max > 0 ? worksViewport.scrollLeft / max : 0})`;
+            }, { passive: true });
+        } else {
+            layoutWorks();
+            window.addEventListener('scroll', updateWorks, { passive: true });
+            window.addEventListener('resize', layoutWorks);
+            window.addEventListener('load', layoutWorks);
+        }
+
+        // frecce: una card alla volta (spostando lo scroll di pagina, o il carosello nel fallback)
+        function nudgeWorks(dir) {
+            if (reducedMotion) {
+                worksViewport.scrollBy({ left: dir * cardStep(), behavior: 'smooth' });
+            } else {
+                window.scrollBy({ top: dir * cardStep(), behavior: 'smooth' });
+            }
+        }
+        document.getElementById('slide-prev').addEventListener('click', () => { blip(700, 0.05, 0.04); nudgeWorks(-1); });
+        document.getElementById('slide-next').addEventListener('click', () => { blip(900, 0.05, 0.04); nudgeWorks(1); });
+
+        // focus da tastiera: porta in vista la card selezionata
+        worksCards.forEach((card, i) => {
+            card.addEventListener('focus', () => {
+                if (reducedMotion) return;
+                window.scrollTo({ top: worksSection.offsetTop + Math.min(i * cardStep(), worksShift), behavior: 'instant' });
+            });
+        });
 
         // Progresso pagina
         const scrollProgress = document.getElementById('scroll-progress');
