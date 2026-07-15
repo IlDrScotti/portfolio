@@ -89,13 +89,15 @@
         .horizontal-slider::-webkit-scrollbar { display: none; }
 
         .project-card {
-            flex: 0 0 44vw; aspect-ratio: 16/9; scroll-snap-align: center;
+            /* width esplicita oltre alla flex-basis: WebKit calcola max-content
+               sulla larghezza intrinseca delle immagini se manca */
+            flex: 0 0 44vw; width: 44vw; aspect-ratio: 16/9; scroll-snap-align: center;
             position: relative; border-radius: 2rem; overflow: hidden;
             border: 1px solid rgba(255,255,255,0.08);
             transition: all 0.6s cubic-bezier(0.2, 1, 0.3, 1);
             background: #111;
         }
-        @media (max-width: 1024px) { .project-card { flex: 0 0 78vw; } }
+        @media (max-width: 1024px) { .project-card { flex: 0 0 78vw; width: 78vw; } }
 
         /* TILT 3D + RIFLESSO (le variabili restano a 0 senza mouse) */
         .project-card:hover {
@@ -114,8 +116,8 @@
         .project-card:hover .card-img { opacity: 0.8; transform: scale(1.05); }
 
         /* SHORT 9:16 */
-        .short-card { flex: 0 0 24vw; aspect-ratio: 9/16; }
-        @media (max-width: 1024px) { .short-card { flex: 0 0 55vw; } }
+        .short-card { flex: 0 0 24vw; width: 24vw; aspect-ratio: 9/16; }
+        @media (max-width: 1024px) { .short-card { flex: 0 0 55vw; width: 55vw; } }
         @media (min-width: 1025px) { .shorts-slider { justify-content: center; } }
         .card-video { width: 100%; height: 100%; object-fit: cover; opacity: 0.75; transition: 0.7s; }
         .project-card:hover .card-video { opacity: 1; transform: scale(1.03); }
@@ -509,7 +511,13 @@
 
         let worksShift = 0;
         function layoutWorks() {
-            worksShift = Math.max(0, worksTrack.offsetWidth - worksViewport.clientWidth);
+            // misura geometrica dal bordo dell'ultima card: la larghezza del track
+            // non è affidabile (WebKit gonfia max-content con le immagini)
+            const lastCard = worksCards[worksCards.length - 1];
+            const contentEnd = lastCard.getBoundingClientRect().right
+                - worksTrack.getBoundingClientRect().left
+                + (parseFloat(getComputedStyle(worksTrack).paddingRight) || 0);
+            worksShift = Math.max(0, Math.round(contentEnd - worksViewport.clientWidth));
             // base = altezza reale dello sticky (stabile anche quando la barra url mobile appare/sparisce)
             worksSection.style.height = `${worksSticky.offsetHeight + worksShift}px`;
             updateWorks();
