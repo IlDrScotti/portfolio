@@ -3,7 +3,25 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>MAZZUFERI MAURIZIO — portfolio</title>
+<title>Maurizio Mazzuferi — Senior Videomaker &amp; Video Editor | Padova</title>
+<meta name="description" content="Portfolio di Maurizio Mazzuferi, senior videomaker a Padova: video editing, motion graphics, color grading, regia ed eventi live.">
+<link rel="canonical" href="https://mauriziomazzuferi.it/">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://mauriziomazzuferi.it/">
+<meta property="og:site_name" content="Maurizio Mazzuferi">
+<meta property="og:locale" content="it_IT">
+<meta property="og:title" content="Maurizio Mazzuferi — Senior Videomaker">
+<meta property="og:description" content="Video editing, motion graphics, color grading, regia ed eventi live. Portfolio, short e contatti.">
+<meta property="og:image" content="https://mauriziomazzuferi.it/reskin-assets/acid-streaming.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Maurizio Mazzuferi — Senior Videomaker">
+<meta name="twitter:description" content="Video editing, motion graphics, color grading, regia ed eventi live.">
+<meta name="twitter:image" content="https://mauriziomazzuferi.it/reskin-assets/acid-streaming.png">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>&#127916;</text></svg>">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Person","name":"Maurizio Mazzuferi","jobTitle":"Senior Videomaker","description":"Video editing, motion graphics, color grading, regia ed eventi live.","url":"https://mauriziomazzuferi.it/","email":"mailto:mauriziomazzuferi@yahoo.it","address":{"@type":"PostalAddress","addressLocality":"Padova","addressCountry":"IT"},"sameAs":["https://www.linkedin.com/in/maurizio-mazzuferi"],"knowsAbout":["Video editing","Motion graphics","Color grading","Regia","Eventi live","Content creation"],"knowsLanguage":["Italiano","Inglese"]}
+</script>
 <link href="https://fonts.googleapis.com/css2?family=Anton&family=Instrument+Serif:ital@0;1&family=Space+Mono:wght@400;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -65,6 +83,8 @@ nav a:hover{background:var(--lime);color:var(--ink)}
    Le larghezze vengono pareggiate a runtime sul corpo del font, quindi le righe
    formano un blocco giustificato; le interlinee negative le fanno incastrare. */
 .stack{position:relative;margin:0;isolation:isolate;line-height:.78}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.stack .fit::before{content:attr(data-t)}
 .stack .ly{display:block;width:max-content;text-transform:uppercase;white-space:nowrap;
   transform-origin:left center;
   transform:translate(var(--dx,0px),var(--dy,0px))}
@@ -232,10 +252,11 @@ footer{padding:26px 5vw 40px;display:flex;justify-content:space-between;flex-wra
 
   <p class="first">Maurizio</p>
   <h1 class="stack">
-    <span class="ly ly-main">Mazzuferi</span>
-    <span class="ly fit ly-serif" aria-hidden="true">Mazzuferi</span>
-    <span class="ly fit ly-syne" aria-hidden="true">Mazzuferi</span>
-    <span class="ly fit ly-mono" aria-hidden="true">Mazzuferi</span>
+    <span class="sr-only">Maurizio Mazzuferi — senior videomaker a Padova: editing, motion graphics, color grading e regia</span>
+    <span class="ly ly-main" aria-hidden="true">Mazzuferi</span>
+    <span class="ly fit ly-serif" data-t="Mazzuferi" aria-hidden="true"></span>
+    <span class="ly fit ly-syne" data-t="Mazzuferi" aria-hidden="true"></span>
+    <span class="ly fit ly-mono" data-t="Mazzuferi" aria-hidden="true"></span>
   </h1>
 
   <p class="role">Senior videomaker. <b>Scrivo, giro, monto, coloro.</b> Sette anni tra contenuti, motion graphics ed eventi live.</p>
