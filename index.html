@@ -187,7 +187,9 @@ nav a:hover{background:var(--lime);color:var(--ink)}
 .bio{padding:80px 5vw;display:grid;grid-template-columns:1.3fr .7fr;gap:56px;
   border-top:1px solid rgba(242,242,240,.14);margin-top:40px}
 .lead{font-family:'Syne',sans-serif;font-weight:800;text-transform:uppercase;letter-spacing:-.02em;
-  font-size:clamp(24px,3.6vw,46px);line-height:1.02;margin:0 0 26px}
+  font-size:clamp(24px,3.6vw,46px);line-height:1.02;margin:0 0 26px;text-wrap:balance}
+/* l'a capo va forzato solo dove "la gente guarda fino alla fine" sta tutto in riga */
+@media(min-width:1400px){.lead .l1{display:block}}
 .lead em{font-family:'Instrument Serif',serif;font-style:italic;font-weight:400;
   text-transform:none;color:var(--lime)}
 .bio p{font-size:14px;line-height:1.85;color:var(--dim);max-width:58ch;margin:0 0 16px}
@@ -347,13 +349,14 @@ footer{padding:26px 5vw 40px;display:flex;justify-content:space-between;flex-wra
     <div class="tint"></div>
     <div class="short-c"><span>MR1 MK3</span><span>9:16</span></div>
   </div>
-  <p class="shorts-note">Contenuti verticali per il feed: gancio nei primi due secondi, montaggio a taglio secco.
-  <br><br><b>La retinatura è calcolata sul filmato in tempo reale</b>, non è un fermo immagine.</p>
+  <p class="shorts-note">Contenuti verticali per il feed: gancio nei primi due secondi,
+  testo in sovrimpressione, montaggio a taglio secco.
+  <br><br><b>Tocca per guardarli con audio.</b></p>
 </div>
 
 <section class="bio">
   <div>
-    <h2 class="lead">Faccio video che la gente<br><em>guarda fino alla fine.</em></h2>
+    <h2 class="lead"><span class="l1">Faccio video che</span> la gente <em>guarda fino alla fine.</em></h2>
     <p>Sono Maurizio, videomaker da sette anni, base a Padova. Ho iniziato tra grafica e riprese, sono passato per la regia di eventi live e oggi faccio soprattutto contenuti: scrivo, giro, monto, curo colore e motion.</p>
     <p>La parte che mi diverte di più resta il montaggio — trovare il ritmo che tiene le persone incollate fino all'ultimo secondo.</p>
     <a class="cta" href="mailto:mauriziomazzuferi@yahoo.it">Cerchi un videomaker? Scrivimi →</a>
